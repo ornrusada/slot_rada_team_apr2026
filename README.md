@@ -1,1 +1,1 @@
-# slot_rada_team_apr2026
+index.html
