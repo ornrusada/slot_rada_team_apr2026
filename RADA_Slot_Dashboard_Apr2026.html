@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>RADA Slot Team Dashboard — เม.ย. 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1A365D; --navy-dark:#102444; --teal:#00A88F; --teal-light:#E6F4F1;
+    --teal-deep:#007F6B; --white:#FFFFFF; --bg:#F5F8FA;
+    --orange:#FF7A45; --crimson:#D7263D; --grey:#8896A6; --light-grey:#EEF2F5;
+    --shadow:0 2px 8px rgba(26,54,93,.06); --shadow-lg:0 8px 24px rgba(26,54,93,.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Sarabun','Inter',-apple-system,sans-serif;background:var(--bg);color:#222;line-height:1.5}
+  .container{max-width:1400px;margin:0 auto;padding:24px}
+
+  /* Hero */
+  .hero{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-dark) 60%,#0c1d36 100%);color:white;padding:36px 32px;border-radius:18px;margin-bottom:24px;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-80px;top:-80px;width:280px;height:280px;background:radial-gradient(circle,var(--teal) 0%,transparent 70%);opacity:.18}
+  .hero-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;flex-wrap:wrap;gap:8px}
+  .hero h1{font-size:30px;font-weight:800;letter-spacing:-.5px}
+  .hero h1 span{color:var(--teal)}
+  .hero p{opacity:.85;font-size:14px}
+  .badge{background:rgba(0,168,143,.18);border:1px solid var(--teal);color:var(--teal);padding:6px 14px;border-radius:999px;font-size:12px;font-weight:600}
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:28px}
+  .kpi{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:18px 20px}
+  .kpi-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;opacity:.75;margin-bottom:6px}
+  .kpi-value{font-size:38px;font-weight:800;line-height:1;font-family:'Inter',sans-serif}
+  .kpi-sub{font-size:12px;opacity:.7;margin-top:6px}
+  .kpi.done .kpi-value{color:#7CDCC2}
+  .kpi.pending .kpi-value{color:#FFB088}
+  .kpi.cancel .kpi-value{color:#B7C2CE}
+
+  section{background:white;border-radius:16px;padding:24px;margin-bottom:24px;box-shadow:var(--shadow)}
+  .sec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:8px}
+  .sec-title{font-size:18px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:10px}
+  .sec-title::before{content:"";width:4px;height:22px;background:var(--teal);border-radius:2px}
+  .sec-sub{font-size:13px;color:var(--grey)}
+
+  .charts-row{display:grid;grid-template-columns:1fr 1.4fr;gap:20px}
+  .charts-row-3{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .chart-card{background:#FAFCFD;border:1px solid var(--light-grey);border-radius:12px;padding:18px}
+  .chart-card h3{font-size:14px;color:var(--navy);font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .chart-card h3 .ico{width:24px;height:24px;background:var(--teal);color:white;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+
+  /* Donut */
+  .donut-wrap{display:flex;justify-content:center;align-items:center;gap:24px;flex-wrap:wrap}
+  .donut-svg{flex-shrink:0}
+  .donut-legend{display:flex;flex-direction:column;gap:10px;font-size:13px}
+  .donut-legend > div{display:flex;align-items:center;gap:10px}
+  .donut-legend i{width:14px;height:14px;border-radius:3px;display:inline-block;flex-shrink:0}
+  .donut-legend b{color:var(--navy);font-size:18px;font-family:'Inter',sans-serif;margin-left:6px}
+  .donut-legend small{color:var(--grey);font-size:11px;margin-left:4px}
+
+  /* Pie chart variant */
+  .pie-wrap{display:flex;justify-content:center;align-items:flex-start;gap:20px;flex-wrap:wrap}
+  .pie-legend{display:grid;grid-template-columns:1fr;gap:6px;font-size:12px;max-width:220px}
+  .pie-legend > div{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:5px}
+  .pie-legend > div:hover{background:var(--teal-light)}
+  .pie-legend i{width:11px;height:11px;border-radius:2px;flex-shrink:0}
+  .pie-legend .nm{flex:1;color:var(--navy);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pie-legend .vl{font-weight:700;color:var(--teal-deep);font-family:'Inter',sans-serif}
+
+  /* Horizontal bars */
+  .hbar-row{display:grid;grid-template-columns:90px 1fr 70px;gap:12px;align-items:center;padding:6px 0;font-size:13px}
+  .hbar-row .nm{font-weight:700;color:var(--navy);text-align:right}
+  .hbar{height:22px;background:var(--light-grey);border-radius:5px;overflow:hidden;display:flex}
+  .hbar > span{height:100%;display:block}
+  .hbar .seg-d{background:var(--teal)}
+  .hbar .seg-p{background:var(--orange)}
+  .hbar .seg-c{background:var(--grey)}
+  .hbar-row .vt{font-family:'Inter',sans-serif;font-weight:700;color:var(--navy);font-size:13px}
+
+  /* Completion rate column chart */
+  .col-chart{display:grid;grid-template-columns:160px 1fr 50px;gap:10px;align-items:center;padding:5px 0;font-size:12px}
+  .col-chart .nm{text-align:right;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .col-chart .bar{height:18px;background:var(--light-grey);border-radius:3px;overflow:hidden;position:relative}
+  .col-chart .bar > span{height:100%;display:block;border-radius:3px}
+  .col-chart .pct{font-family:'Inter',sans-serif;font-weight:700;font-size:12px}
+
+  /* Owner cards */
+  .owner-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px}
+  .owner{background:white;border:1px solid var(--light-grey);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:all .2s}
+  .owner:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px);border-color:var(--teal)}
+  .owner-head{padding:18px;background:linear-gradient(135deg,var(--teal-light) 0%,white 100%);border-bottom:1px solid var(--light-grey);display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .owner-id{display:flex;align-items:center;gap:12px}
+  .owner-emoji{font-size:28px;width:48px;height:48px;background:var(--teal);color:white;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .owner-name{font-size:18px;font-weight:800;color:var(--navy);line-height:1.1}
+  .owner-role{font-size:11px;color:var(--grey);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+  .completion-ring{position:relative;width:62px;height:62px;flex-shrink:0}
+  .ring-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--navy);font-family:'Inter',sans-serif}
+  .owner-stats{padding:14px 18px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border-bottom:1px solid var(--light-grey)}
+  .stat{text-align:center;padding:6px}
+  .stat-num{font-size:22px;font-weight:800;font-family:'Inter',sans-serif;line-height:1}
+  .stat-lbl{font-size:10px;color:var(--grey);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;font-weight:600}
+  .stat.done .stat-num{color:var(--teal-deep)}
+  .stat.pending .stat-num{color:var(--orange)}
+  .stat.cancel .stat-num{color:var(--grey)}
+  .progress-bar{height:8px;background:var(--light-grey);margin:0 18px;border-radius:4px;overflow:hidden;display:flex}
+  .progress-bar > span{height:100%;display:block}
+  .progress-bar .seg-d{background:var(--teal)}
+  .progress-bar .seg-p{background:var(--orange)}
+  .progress-bar .seg-c{background:var(--grey)}
+  .total-bar{padding:8px 18px 12px;font-size:11px;color:var(--grey);text-align:right}
+  .total-bar b{color:var(--navy);font-size:13px}
+  .owner-section{padding:14px 18px;border-top:1px solid var(--light-grey)}
+  .owner-section h4{font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+  .top-proj-list{display:flex;flex-direction:column;gap:6px}
+  .top-proj{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:7px 10px;background:var(--teal-light);border-radius:6px;border-left:3px solid var(--teal)}
+  .top-proj b{color:var(--navy);font-weight:700;background:white;padding:2px 9px;border-radius:10px;font-size:11px}
+  .pending-list{display:flex;flex-direction:column;gap:5px;max-height:220px;overflow-y:auto}
+  .pending-item{font-size:12px;color:#444;padding:7px 9px;background:#FFF6F2;border-left:3px solid var(--orange);border-radius:4px;display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+  .pending-item .p-name{flex:1;line-height:1.3}
+  .pending-item .p-status{font-size:9px;background:var(--orange);color:white;padding:2px 6px;border-radius:8px;text-transform:uppercase;font-weight:700;white-space:nowrap;flex-shrink:0;letter-spacing:.3px}
+  .pending-item.cancel{background:#F4F6F8;border-left-color:var(--grey)}
+  .pending-item.cancel .p-status{background:var(--grey)}
+  .ok-msg{font-size:12px;color:var(--teal-deep);padding:8px;background:var(--teal-light);border-radius:4px;text-align:center;font-weight:600}
+
+  /* Project cards */
+  .proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px}
+  .proj-card{background:white;border:1px solid var(--light-grey);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:all .2s}
+  .proj-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px);border-color:var(--teal)}
+  .proj-head{padding:16px 18px;background:linear-gradient(135deg,#1A365D 0%,#0c1d36 100%);color:white;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .proj-head .pn{font-size:16px;font-weight:800;line-height:1.2;flex:1}
+  .proj-head .pcount{font-size:24px;font-weight:800;font-family:'Inter',sans-serif;color:var(--teal);background:rgba(0,168,143,.15);padding:3px 12px;border-radius:8px;flex-shrink:0;line-height:1}
+  .proj-meta{padding:12px 18px;border-bottom:1px solid var(--light-grey);display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:12px;color:var(--grey)}
+  .proj-meta .pct-b{font-family:'Inter',sans-serif;font-weight:800;font-size:18px;color:var(--teal-deep)}
+  .proj-meta.warn .pct-b{color:var(--orange)}
+  .proj-meta.bad .pct-b{color:var(--crimson)}
+  .proj-bar{height:6px;background:var(--light-grey);display:flex}
+  .proj-bar > span{height:100%}
+  .proj-bar .seg-d{background:var(--teal)}
+  .proj-bar .seg-p{background:var(--orange)}
+  .proj-bar .seg-c{background:var(--grey)}
+  .proj-stats{display:grid;grid-template-columns:repeat(3,1fr);font-size:11px;text-align:center;border-bottom:1px solid var(--light-grey)}
+  .proj-stats > div{padding:8px;border-right:1px solid var(--light-grey)}
+  .proj-stats > div:last-child{border-right:0}
+  .proj-stats b{display:block;font-size:18px;font-weight:800;font-family:'Inter',sans-serif;line-height:1.1}
+  .proj-stats .d b{color:var(--teal-deep)}
+  .proj-stats .p b{color:var(--orange)}
+  .proj-stats .c b{color:var(--grey)}
+  .proj-contrib{padding:14px 18px;flex:1;display:flex;flex-direction:column;gap:8px}
+  .proj-contrib h4{font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+  .proj-contrib h4 .cnt{background:var(--teal-light);color:var(--teal-deep);padding:2px 8px;border-radius:8px;font-size:11px;text-transform:none;letter-spacing:0}
+  .contrib-row{display:grid;grid-template-columns:30px 80px 1fr 40px;gap:8px;align-items:center;font-size:12px}
+  .contrib-row .av{width:26px;height:26px;background:var(--teal);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  .contrib-row .nm{font-weight:700;color:var(--navy);font-size:13px}
+  .contrib-row .br{height:14px;background:var(--light-grey);border-radius:3px;overflow:hidden;position:relative}
+  .contrib-row .br > span{height:100%;background:linear-gradient(90deg,var(--teal) 0%,var(--teal-deep) 100%);display:block;border-radius:3px;transition:width .3s}
+  .contrib-row .vt{font-family:'Inter',sans-serif;font-weight:700;color:var(--navy);text-align:right;font-size:13px}
+
+  /* Project filter bar */
+  .filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;padding:12px;background:var(--teal-light);border-radius:8px}
+  .filter-bar button{background:white;border:1px solid var(--teal);color:var(--teal-deep);padding:6px 14px;border-radius:6px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+  .filter-bar button:hover{background:var(--teal);color:white}
+  .filter-bar button.active{background:var(--navy);border-color:var(--navy);color:white}
+
+  .proj-table{width:100%;border-collapse:collapse}
+  .proj-table th{background:var(--navy);color:white;padding:10px 12px;font-size:12px;font-weight:700;text-align:left;text-transform:uppercase;letter-spacing:.5px}
+  .proj-table th:not(:first-child){text-align:center}
+  .proj-table td{padding:9px 12px;border-bottom:1px solid var(--light-grey);font-size:13px}
+  .proj-table td:first-child{font-weight:600;color:var(--navy)}
+  .proj-table td:not(:first-child){text-align:center}
+  .proj-table tr:hover td{background:var(--teal-light)}
+  .pill{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif}
+  .pill.green{background:#D6F2E9;color:var(--teal-deep)}
+  .pill.orange{background:#FFE6D9;color:#C44C1A}
+  .pill.grey{background:#E4E9EE;color:#506073}
+
+  .matrix-wrap{overflow-x:auto;border:1px solid var(--light-grey);border-radius:8px;max-height:600px;overflow-y:auto}
+  .matrix{width:100%;border-collapse:collapse;font-size:12px;min-width:760px}
+  .matrix th{background:var(--navy);color:white;padding:10px 8px;font-weight:700;text-align:center;position:sticky;top:0;z-index:1}
+  .matrix th:first-child{text-align:left;background:var(--navy-dark);position:sticky;left:0;z-index:3;min-width:200px}
+  .matrix td{padding:8px;text-align:center;border-bottom:1px solid var(--light-grey);border-right:1px solid var(--light-grey)}
+  .matrix td:first-child{text-align:left;font-weight:600;color:var(--navy);background:#FAFCFD;position:sticky;left:0;z-index:1}
+  .matrix tr:hover td{background:var(--teal-light)}
+  .heat-0{color:#CCD3DA}
+  .heat-1{background:#E6F4F1;color:var(--teal-deep);font-weight:600}
+  .heat-3{background:#A8DDD0;color:var(--navy);font-weight:700}
+  .heat-5{background:var(--teal);color:white;font-weight:700}
+  .heat-10{background:var(--teal-deep);color:white;font-weight:800}
+
+  footer{text-align:center;padding:24px;color:var(--grey);font-size:12px}
+  .footer-brand b{color:var(--navy);font-weight:700}
+  @media (max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.charts-row,.charts-row-3{grid-template-columns:1fr}.owner-grid,.proj-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="hero">
+    <div class="hero-top">
+      <div>
+        <h1>RADA <span>Slot Team</span> Dashboard</h1>
+        <p>รายงาน workload, โปรเจกต์ และ contributors — ประจำเดือน <b>เมษายน 2026</b></p>
+      </div>
+      <span class="badge" id="genStamp"></span>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">งานทั้งหมด</div><div class="kpi-value" id="kpiTotal">—</div><div class="kpi-sub" id="kpiSubTotal">—</div></div>
+      <div class="kpi done"><div class="kpi-label">เสร็จ</div><div class="kpi-value" id="kpiDone">—</div><div class="kpi-sub" id="kpiRate">—</div></div>
+      <div class="kpi pending"><div class="kpi-label">ยังไม่เสร็จ</div><div class="kpi-value" id="kpiPending">—</div><div class="kpi-sub">ค้างต่อเนื่อง</div></div>
+      <div class="kpi cancel"><div class="kpi-label">ยกเลิก</div><div class="kpi-value" id="kpiCancel">—</div><div class="kpi-sub">cancelled tasks</div></div>
+    </div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-title">ภาพรวมเดือนเมษายน</div>
+      <div class="sec-sub">Status mix และ workload distribution</div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <h3><span class="ico">●</span>สัดส่วนสถานะงาน</h3>
+        <div class="donut-wrap" id="donutWrap"></div>
+      </div>
+      <div class="chart-card">
+        <h3><span class="ico">▤</span>Workload ต่อคน — เสร็จ vs ยังไม่เสร็จ vs ยกเลิก</h3>
+        <div id="hbarOwners"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECT CHARTS (NEW!) -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-title">มุมมองโปรเจกต์ — Pie + Completion Rate</div>
+      <div class="sec-sub">สัดส่วนงานต่อโปรเจกต์ (Top 10) และอัตราเสร็จงานเทียบกัน</div>
+    </div>
+    <div class="charts-row-3">
+      <div class="chart-card">
+        <h3><span class="ico">◐</span>สัดส่วนงานในแต่ละโปรเจกต์ (Top 10)</h3>
+        <div class="pie-wrap" id="pieProjects"></div>
+      </div>
+      <div class="chart-card">
+        <h3><span class="ico">▦</span>Completion Rate ต่อโปรเจกต์ (Top 15)</h3>
+        <div id="rateBars"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OWNER CARDS -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-title">Workload รายบุคคล</div>
+      <div class="sec-sub">เรียงตามจำนวนงาน — ดู completion rate, top projects และงานค้างต่อคน</div>
+    </div>
+    <div class="owner-grid" id="ownerGrid"></div>
+  </section>
+
+  <!-- PROJECT CARDS (NEW!) -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-title">สรุปแยกตามโปรเจกต์ — ใครมีส่วนร่วมบ้าง</div>
+      <div class="sec-sub">แต่ละ card แสดงจำนวน task, อัตราเสร็จงาน และผู้รับผิดชอบ พร้อมสัดส่วนงานที่ทำ</div>
+    </div>
+    <div class="filter-bar">
+      <button class="active" data-min="1">แสดงทั้งหมด (60)</button>
+      <button data-min="3">มี ≥3 งาน</button>
+      <button data-min="5">มี ≥5 งาน</button>
+      <button data-min="10">มี ≥10 งาน</button>
+    </div>
+    <div class="proj-grid" id="projGrid"></div>
+  </section>
+
+  <!-- TABLE -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-title">ตารางสรุปทุกโปรเจกต์ (60 รายการ)</div>
+      <div class="sec-sub">ค่าทั้งหมด พร้อม completion pill</div>
+    </div>
+    <div style="overflow-x:auto;border:1px solid var(--light-grey);border-radius:8px">
+      <table class="proj-table" id="projTable">
+        <thead><tr><th>โปรเจกต์ / แบรนด์</th><th>งานทั้งหมด</th><th>เสร็จ</th><th>ยังไม่เสร็จ</th><th>ยกเลิก</th><th>คน</th><th>% เสร็จ</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- MATRIX -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-title">Matrix: คน × โปรเจกต์</div>
+      <div class="sec-sub">Heatmap จำนวนงานที่แต่ละคนรับผิดชอบในแต่ละโปรเจกต์</div>
+    </div>
+    <div class="matrix-wrap">
+      <table class="matrix" id="matrixTable"></table>
+    </div>
+  </section>
+
+  <footer class="footer-brand">
+    <b>RADA RICHNESS CO., LTD.</b> &nbsp;·&nbsp; Internal Executive Dashboard &nbsp;·&nbsp; Source: ClickUp Slot Team Space &nbsp;·&nbsp; Prepared for CEO ออน
+  </footer>
+</div>
+
+<script>
+(function(){
+  var DATA = {"generated_at": "4 พ.ค. 2026 (รายงานข้อมูลเดือน เม.ย. 2026)", "totals": {"total": 293, "done": 253, "pending": 36, "cancel": 4}, "owners": [{"name": "Arm", "role": "Senior MKT / Ads Lead", "emoji": "🚀", "total": 143, "done": 134, "pending": 5, "cancel": 4, "rate": 93.7, "top_projects": [{"p": "RADA Inhouse", "n": 49}, {"p": "All Brand Ads", "n": 23}, {"p": "P-Solar", "n": 11}], "pending_tasks": [{"name": "Ads All Brand | APR | Set New Ads", "project": "All Brand Ads", "status": "to do", "id": "86exdqnz2"}, {"name": "YBN Thailand | จอง Traning CRM", "project": "YBN Thailand", "status": "on hold", "id": "86exauhnr"}, {"name": "STARKE | Google Ads | Search Volumn Check", "project": "Starke", "status": "cancelled", "id": "86ex5w4vp"}, {"name": "Srifa กำแพงเพชร | Storyboard Short Clip", "project": "Srifa", "status": "cancelled", "id": "86ex5t5u5"}, {"name": "Ennkai Resort | MAR'2026 | Monthly Report", "project": "Ennkai Resort", "status": "meeting", "id": "86ex4dwag"}, {"name": "RADA | Click Up | Task Management Update", "project": "RADA Inhouse", "status": "to do", "id": "86ex3gz5h"}, {"name": "RADA | Interview Junior MKT | นันทชา", "project": "RADA Inhouse", "status": "cancelled", "id": "86ex3guva"}, {"name": "P-Solar | VDO Production | Supplier Survey", "project": "P-Solar", "status": "in progress", "id": "86ex3gdqb"}]}, {"name": "Katiel", "role": "Content & Pitching", "emoji": "📝", "total": 66, "done": 55, "pending": 11, "cancel": 0, "rate": 83.3, "top_projects": [{"p": "Srifa", "n": 16}, {"p": "Starke", "n": 8}, {"p": "P-Solar", "n": 5}], "pending_tasks": [{"name": "Starke | Topic Review K.Arm", "project": "Starke", "status": "meeting", "id": "86exavyun"}, {"name": "Srifa (กำแพงเพชร) | Meeting", "project": "Srifa", "status": "meeting", "id": "86ex97egy"}, {"name": "Starke | Report Meeting", "project": "Starke", "status": "meeting", "id": "86ex97dj4"}, {"name": "Landing Page Website Recap K.Chompoo", "project": "Landing Page Website Recap K.C", "status": "meeting", "id": "86ex6zb5k"}, {"name": "Privage x ESC Park I Concept CRM (Online)", "project": "Privage", "status": "meeting", "id": "86ex6zax8"}, {"name": "Srifa Admin Set Post Recap K.Nan", "project": "Srifa", "status": "meeting", "id": "86ex6zaej"}, {"name": "Company Profile + E-Book | BILLION THAI Recap", "project": "Company Profile + E-Book", "status": "meeting", "id": "86ex6zabg"}, {"name": "STARKE | Recap Content K.Jane", "project": "Starke", "status": "meeting", "id": "86ex4aj1n"}]}, {"name": "Namcha", "role": "Account Executive", "emoji": "💼", "total": 30, "done": 22, "pending": 8, "cancel": 0, "rate": 73.3, "top_projects": [{"p": "Privage", "n": 9}, {"p": "RADA Inhouse", "n": 5}, {"p": "1688 (MCN Project)", "n": 5}], "pending_tasks": [{"name": "Privage I Brief ภาพออกบูธฟิลิปปินส์ English", "project": "Privage", "status": "waiting recheck&approve", "id": "86exbqkx6"}, {"name": "1688 I ทำการบ้านออกแบบ Packaging ใหม่", "project": "1688 (MCN Project)", "status": "waiting recheck&approve", "id": "86exbftdc"}, {"name": "Celeb Medical I ปรับสไลด์คู่มือสอน CRM", "project": "Celeb Medical", "status": "waiting recheck&approve", "id": "86exbft4r"}, {"name": "Privage I Brief Rollup / Leaflet English", "project": "Privage", "status": "waiting recheck&approve", "id": "86exb1fd6"}, {"name": "RADA I หา Email Marketing", "project": "RADA Inhouse", "status": "waiting recheck&approve", "id": "86exakbw6"}, {"name": "1688 I ส่งอีเมลขอข้อมูลหา MCN", "project": "1688 (MCN Project)", "status": "waiting recheck&approve", "id": "86ex9tar3"}, {"name": "1688 I หาลิสต์ MCN", "project": "1688 (MCN Project)", "status": "waiting recheck&approve", "id": "86ex9t9mh"}, {"name": "Privage I Partner Pipeline 29/04/2026", "project": "Privage", "status": "in-progress", "id": "86ex439b6"}]}, {"name": "Bas", "role": "Senior Graphic Designer", "emoji": "🎨", "total": 23, "done": 18, "pending": 5, "cancel": 0, "rate": 78.3, "top_projects": [{"p": "Starke", "n": 7}, {"p": "ธงชัยการแพทย์", "n": 4}, {"p": "House999", "n": 2}], "pending_tasks": [{"name": "House999 | ออกแบบป้ายไฟ", "project": "House999", "status": "in progress", "id": "86exdgx7n"}, {"name": "STARKE | MAY | SIG | ตาดี ล่า 5 ไอเทมลับ", "project": "Starke", "status": "new task", "id": "86exd8e6d"}, {"name": "STARKE | MAY | SIG | หัวใจโกโฮม", "project": "Starke", "status": "in progress", "id": "86exd8e6a"}, {"name": "ESC Park I ออกแบบ Member Card", "project": "ESC Park", "status": "in progress", "id": "86ex9qah3"}, {"name": "Billion Thai Supply Company profile", "project": "Billion Thai Supply", "status": "in progress", "id": "86ex17wm3"}]}, {"name": "Namo", "role": "Junior MKT", "emoji": "🌱", "total": 13, "done": 13, "pending": 0, "cancel": 0, "rate": 100.0, "top_projects": [{"p": "Srifa", "n": 3}, {"p": "ZIRA Collagen", "n": 2}, {"p": "P-Solar", "n": 2}], "pending_tasks": []}, {"name": "Chompoo", "role": "Senior Web & SEO", "emoji": "🌐", "total": 7, "done": 5, "pending": 2, "cancel": 0, "rate": 71.4, "top_projects": [{"p": "SVC", "n": 2}, {"p": "SEO Article (แสงรุ่ง)", "n": 2}, {"p": "ZIRA Collagen", "n": 1}], "pending_tasks": [{"name": "แก้ไข D2 บทความที่ 7 | SEO Article Cover", "project": "แก้ไข D2 บทความที่ 7", "status": "ready for review", "id": "86exb2d2r"}, {"name": "แก้ไข D2 บทความที่ 8 | SEO Article Cover", "project": "แก้ไข D2 บทความที่ 8", "status": "ready for review", "id": "86exb2c76"}]}, {"name": "Baitong", "role": "Junior Admin", "emoji": "📋", "total": 5, "done": 1, "pending": 4, "cancel": 0, "rate": 20.0, "top_projects": [{"p": "เอาชื่อเล่นใส่ใน Canva", "n": 1}, {"p": "สรุปการประชุม (ซัพพอร์ตพี่ชา)", "n": 1}, {"p": "รวบรวมแพคเกจจิ้ง สเปรย์ มูส วา", "n": 1}], "pending_tasks": [{"name": "เอาชื่อเล่นใส่ใน Canva", "project": "เอาชื่อเล่นใส่ใน Canva", "status": "waiting recheck&approve", "id": "86exd982e"}, {"name": "สรุปการประชุม (ซัพพอร์ตพี่ชา)", "project": "สรุปการประชุม (ซัพพอร์ตพี่ชา)", "status": "waiting recheck&approve", "id": "86exd8dw1"}, {"name": "รวบรวมแพคเกจจิ้ง สเปรย์ มูส วาง mock up", "project": "รวบรวมแพคเกจจิ้ง สเปรย์ มูส วา", "status": "waiting recheck&approve", "id": "86exd8bvf"}, {"name": "รีวิวเรซูเม่พนักงาน JobFinfin", "project": "รีวิวเรซูเม่พนักงาน JobFinfin", "status": "new task", "id": "86exaukk9"}]}, {"name": "Ploy", "role": "Junior LINE OA", "emoji": "💬", "total": 4, "done": 3, "pending": 1, "cancel": 0, "rate": 75.0, "top_projects": [{"p": "Srifa", "n": 3}, {"p": "PPMS", "n": 1}], "pending_tasks": [{"name": "PPMS | APR | LINE OA | Card Message", "project": "PPMS", "status": "ready for review", "id": "86ex9cbay"}]}, {"name": "Pang", "role": "Junior LINE OA", "emoji": "💬", "total": 2, "done": 2, "pending": 0, "cancel": 0, "rate": 100.0, "top_projects": [{"p": "Srifa", "n": 2}], "pending_tasks": []}], "projects": [{"name": "RADA Inhouse", "total": 57, "done": 53, "pending": 2, "cancel": 2, "rate": 93.0}, {"name": "Srifa", "total": 35, "done": 32, "pending": 2, "cancel": 1, "rate": 91.4}, {"name": "All Brand Ads", "total": 23, "done": 22, "pending": 1, "cancel": 0, "rate": 95.7}, {"name": "Starke", "total": 20, "done": 13, "pending": 6, "cancel": 1, "rate": 65.0}, {"name": "P-Solar", "total": 20, "done": 19, "pending": 1, "cancel": 0, "rate": 95.0}, {"name": "Privage", "total": 18, "done": 14, "pending": 4, "cancel": 0, "rate": 77.8}, {"name": "ZIRA Collagen", "total": 11, "done": 11, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "Arcadia Foods", "total": 9, "done": 9, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "ESC Park", "total": 7, "done": 6, "pending": 1, "cancel": 0, "rate": 85.7}, {"name": "ธงชัยการแพทย์", "total": 7, "done": 7, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "แสงรุ่ง", "total": 6, "done": 6, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "Ennkai Resort", "total": 6, "done": 5, "pending": 1, "cancel": 0, "rate": 83.3}, {"name": "1688 (MCN Project)", "total": 5, "done": 2, "pending": 3, "cancel": 0, "rate": 40.0}, {"name": "Billion Thai Supply", "total": 5, "done": 2, "pending": 3, "cancel": 0, "rate": 40.0}, {"name": "Celeb Medical", "total": 4, "done": 3, "pending": 1, "cancel": 0, "rate": 75.0}, {"name": "Gee Solar", "total": 3, "done": 3, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "AMT Capital", "total": 3, "done": 3, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "Asia Hospital", "total": 3, "done": 3, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "WRC Energy", "total": 2, "done": 2, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "House999", "total": 2, "done": 1, "pending": 1, "cancel": 0, "rate": 50.0}, {"name": "Sparksjump", "total": 2, "done": 2, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "SVC", "total": 2, "done": 2, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "Danilife", "total": 2, "done": 2, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "POSxPAY", "total": 2, "done": 2, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "TRiVii", "total": 2, "done": 2, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "ISHome", "total": 2, "done": 2, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "SEO Article (แสงรุ่ง)", "total": 2, "done": 2, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "AIYA", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "เอาชื่อเล่นใส่ใน Canva", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0}, {"name": "สรุปการประชุม (ซัพพอร์ตพี่ชา)", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0}, {"name": "รวบรวมแพคเกจจิ้ง สเปรย์ มูส วา", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0}, {"name": "Ref CPAS ads", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "Weekly Update", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "Click Up", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "Caption Artwork", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "Line OA Solar Enterprise", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "Brochure", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "แก้ไข D2 บทความที่ 7", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0}, {"name": "แก้ไข D2 บทความที่ 8", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0}, {"name": "My Pro Ads", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "รีวิวเรซูเม่พนักงาน JobFinfin", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0}, {"name": "ตรวจเอกสารหัก ณ ที่จ่าย", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "YBN Thailand", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0}, {"name": "AITIA", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "PK Fence", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "Content", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "Clear chat history IS Home", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "PPMS", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0}, {"name": "เเก้ไข Catalog เเสงรุ่ง", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "ส่งตรวจงาน", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "Follow Up", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "Click Up Update", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "Asana Update", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "Landing Page Website Recap K.C", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0}, {"name": "Company Profile + E-Book", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0}, {"name": "Ben Logistics", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "ปกบทความ SEO เเสงรุ่ง 7-8", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "เกษตร 5 ดาว", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "Ben Logisitcs", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}, {"name": "Meta", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0}], "matrix_owners": ["Arm", "Katiel", "Namcha", "Bas", "Namo", "Chompoo", "Baitong", "Ploy", "Pang"], "matrix_projects": ["RADA Inhouse", "Srifa", "All Brand Ads", "Starke", "P-Solar", "Privage", "ZIRA Collagen", "Arcadia Foods", "ESC Park", "ธงชัยการแพทย์", "แสงรุ่ง", "Ennkai Resort", "1688 (MCN Project)", "Billion Thai Supply", "Celeb Medical", "Gee Solar", "AMT Capital", "Asia Hospital", "WRC Energy", "House999", "Sparksjump", "SVC", "Danilife", "POSxPAY", "TRiVii", "ISHome", "SEO Article (แสงรุ่ง)", "AIYA", "เอาชื่อเล่นใส่ใน Canva", "สรุปการประชุม (ซัพพอร์ตพี่ชา)", "รวบรวมแพคเกจจิ้ง สเปรย์ มูส วา", "Ref CPAS ads", "Weekly Update", "Click Up", "Caption Artwork", "Line OA Solar Enterprise", "Brochure", "แก้ไข D2 บทความที่ 7", "แก้ไข D2 บทความที่ 8", "My Pro Ads", "รีวิวเรซูเม่พนักงาน JobFinfin", "ตรวจเอกสารหัก ณ ที่จ่าย", "YBN Thailand", "AITIA", "PK Fence", "Content", "Clear chat history IS Home", "PPMS", "เเก้ไข Catalog เเสงรุ่ง", "ส่งตรวจงาน", "Follow Up", "Click Up Update", "Asana Update", "Landing Page Website Recap K.C", "Company Profile + E-Book", "Ben Logistics", "ปกบทความ SEO เเสงรุ่ง 7-8", "เกษตร 5 ดาว", "Ben Logisitcs", "Meta"], "matrix": {"Arm": {"RADA Inhouse": 49, "Srifa": 10, "All Brand Ads": 23, "Starke": 5, "P-Solar": 11, "Privage": 7, "ZIRA Collagen": 2, "Arcadia Foods": 7, "ESC Park": 3, "ธงชัยการแพทย์": 0, "แสงรุ่ง": 5, "Ennkai Resort": 2, "1688 (MCN Project)": 0, "Billion Thai Supply": 0, "Celeb Medical": 2, "Gee Solar": 3, "AMT Capital": 0, "Asia Hospital": 2, "WRC Energy": 2, "House999": 0, "Sparksjump": 1, "SVC": 0, "Danilife": 0, "POSxPAY": 0, "TRiVii": 0, "ISHome": 2, "SEO Article (แสงรุ่ง)": 0, "AIYA": 1, "เอาชื่อเล่นใส่ใน Canva": 0, "สรุปการประชุม (ซัพพอร์ตพี่ชา)": 0, "รวบรวมแพคเกจจิ้ง สเปรย์ มูส วา": 0, "Ref CPAS ads": 0, "Weekly Update": 0, "Click Up": 0, "Caption Artwork": 0, "Line OA Solar Enterprise": 0, "Brochure": 0, "แก้ไข D2 บทความที่ 7": 0, "แก้ไข D2 บทความที่ 8": 0, "My Pro Ads": 1, "รีวิวเรซูเม่พนักงาน JobFinfin": 0, "ตรวจเอกสารหัก ณ ที่จ่าย": 0, "YBN Thailand": 1, "AITIA": 0, "PK Fence": 0, "Content": 0, "Clear chat history IS Home": 0, "PPMS": 0, "เเก้ไข Catalog เเสงรุ่ง": 0, "ส่งตรวจงาน": 0, "Follow Up": 0, "Click Up Update": 0, "Asana Update": 0, "Landing Page Website Recap K.C": 0, "Company Profile + E-Book": 0, "Ben Logistics": 1, "ปกบทความ SEO เเสงรุ่ง 7-8": 0, "เกษตร 5 ดาว": 1, "Ben Logisitcs": 1, "Meta": 1}, "Katiel": {"RADA Inhouse": 3, "Srifa": 16, "All Brand Ads": 0, "Starke": 8, "P-Solar": 5, "Privage": 1, "ZIRA Collagen": 4, "Arcadia Foods": 0, "ESC Park": 2, "ธงชัยการแพทย์": 3, "แสงรุ่ง": 1, "Ennkai Resort": 3, "1688 (MCN Project)": 0, "Billion Thai Supply": 4, "Celeb Medical": 0, "Gee Solar": 0, "AMT Capital": 1, "Asia Hospital": 0, "WRC Energy": 0, "House999": 0, "Sparksjump": 1, "SVC": 0, "Danilife": 1, "POSxPAY": 2, "TRiVii": 0, "ISHome": 0, "SEO Article (แสงรุ่ง)": 0, "AIYA": 0, "เอาชื่อเล่นใส่ใน Canva": 0, "สรุปการประชุม (ซัพพอร์ตพี่ชา)": 0, "รวบรวมแพคเกจจิ้ง สเปรย์ มูส วา": 0, "Ref CPAS ads": 0, "Weekly Update": 1, "Click Up": 1, "Caption Artwork": 1, "Line OA Solar Enterprise": 0, "Brochure": 1, "แก้ไข D2 บทความที่ 7": 0, "แก้ไข D2 บทความที่ 8": 0, "My Pro Ads": 0, "รีวิวเรซูเม่พนักงาน JobFinfin": 0, "ตรวจเอกสารหัก ณ ที่จ่าย": 0, "YBN Thailand": 0, "AITIA": 0, "PK Fence": 0, "Content": 1, "Clear chat history IS Home": 0, "PPMS": 0, "เเก้ไข Catalog เเสงรุ่ง": 0, "ส่งตรวจงาน": 1, "Follow Up": 1, "Click Up Update": 1, "Asana Update": 1, "Landing Page Website Recap K.C": 1, "Company Profile + E-Book": 1, "Ben Logistics": 0, "ปกบทความ SEO เเสงรุ่ง 7-8": 0, "เกษตร 5 ดาว": 0, "Ben Logisitcs": 0, "Meta": 0}, "Namcha": {"RADA Inhouse": 5, "Srifa": 0, "All Brand Ads": 0, "Starke": 0, "P-Solar": 1, "Privage": 9, "ZIRA Collagen": 2, "Arcadia Foods": 2, "ESC Park": 0, "ธงชัยการแพทย์": 0, "แสงรุ่ง": 0, "Ennkai Resort": 1, "1688 (MCN Project)": 5, "Billion Thai Supply": 0, "Celeb Medical": 1, "Gee Solar": 0, "AMT Capital": 0, "Asia Hospital": 1, "WRC Energy": 0, "House999": 0, "Sparksjump": 0, "SVC": 0, "Danilife": 1, "POSxPAY": 0, "TRiVii": 0, "ISHome": 0, "SEO Article (แสงรุ่ง)": 0, "AIYA": 0, "เอาชื่อเล่นใส่ใน Canva": 0, "สรุปการประชุม (ซัพพอร์ตพี่ชา)": 0, "รวบรวมแพคเกจจิ้ง สเปรย์ มูส วา": 0, "Ref CPAS ads": 0, "Weekly Update": 0, "Click Up": 0, "Caption Artwork": 0, "Line OA Solar Enterprise": 0, "Brochure": 0, "แก้ไข D2 บทความที่ 7": 0, "แก้ไข D2 บทความที่ 8": 0, "My Pro Ads": 0, "รีวิวเรซูเม่พนักงาน JobFinfin": 0, "ตรวจเอกสารหัก ณ ที่จ่าย": 0, "YBN Thailand": 0, "AITIA": 1, "PK Fence": 1, "Content": 0, "Clear chat history IS Home": 0, "PPMS": 0, "เเก้ไข Catalog เเสงรุ่ง": 0, "ส่งตรวจงาน": 0, "Follow Up": 0, "Click Up Update": 0, "Asana Update": 0, "Landing Page Website Recap K.C": 0, "Company Profile + E-Book": 0, "Ben Logistics": 0, "ปกบทความ SEO เเสงรุ่ง 7-8": 0, "เกษตร 5 ดาว": 0, "Ben Logisitcs": 0, "Meta": 0}, "Bas": {"RADA Inhouse": 0, "Srifa": 1, "All Brand Ads": 0, "Starke": 7, "P-Solar": 1, "Privage": 1, "ZIRA Collagen": 0, "Arcadia Foods": 0, "ESC Park": 2, "ธงชัยการแพทย์": 4, "แสงรุ่ง": 0, "Ennkai Resort": 0, "1688 (MCN Project)": 0, "Billion Thai Supply": 1, "Celeb Medical": 1, "Gee Solar": 0, "AMT Capital": 2, "Asia Hospital": 0, "WRC Energy": 0, "House999": 2, "Sparksjump": 0, "SVC": 0, "Danilife": 0, "POSxPAY": 0, "TRiVii": 1, "ISHome": 0, "SEO Article (แสงรุ่ง)": 0, "AIYA": 0, "เอาชื่อเล่นใส่ใน Canva": 0, "สรุปการประชุม (ซัพพอร์ตพี่ชา)": 0, "รวบรวมแพคเกจจิ้ง สเปรย์ มูส วา": 0, "Ref CPAS ads": 0, "Weekly Update": 0, "Click Up": 0, "Caption Artwork": 0, "Line OA Solar Enterprise": 0, "Brochure": 0, "แก้ไข D2 บทความที่ 7": 0, "แก้ไข D2 บทความที่ 8": 0, "My Pro Ads": 0, "รีวิวเรซูเม่พนักงาน JobFinfin": 0, "ตรวจเอกสารหัก ณ ที่จ่าย": 0, "YBN Thailand": 0, "AITIA": 0, "PK Fence": 0, "Content": 0, "Clear chat history IS Home": 0, "PPMS": 0, "เเก้ไข Catalog เเสงรุ่ง": 0, "ส่งตรวจงาน": 0, "Follow Up": 0, "Click Up Update": 0, "Asana Update": 0, "Landing Page Website Recap K.C": 0, "Company Profile + E-Book": 0, "Ben Logistics": 0, "ปกบทความ SEO เเสงรุ่ง 7-8": 0, "เกษตร 5 ดาว": 0, "Ben Logisitcs": 0, "Meta": 0}, "Namo": {"RADA Inhouse": 0, "Srifa": 3, "All Brand Ads": 0, "Starke": 0, "P-Solar": 2, "Privage": 0, "ZIRA Collagen": 2, "Arcadia Foods": 0, "ESC Park": 0, "ธงชัยการแพทย์": 0, "แสงรุ่ง": 0, "Ennkai Resort": 0, "1688 (MCN Project)": 0, "Billion Thai Supply": 0, "Celeb Medical": 0, "Gee Solar": 0, "AMT Capital": 0, "Asia Hospital": 0, "WRC Energy": 0, "House999": 0, "Sparksjump": 0, "SVC": 0, "Danilife": 0, "POSxPAY": 0, "TRiVii": 1, "ISHome": 0, "SEO Article (แสงรุ่ง)": 0, "AIYA": 0, "เอาชื่อเล่นใส่ใน Canva": 0, "สรุปการประชุม (ซัพพอร์ตพี่ชา)": 0, "รวบรวมแพคเกจจิ้ง สเปรย์ มูส วา": 0, "Ref CPAS ads": 1, "Weekly Update": 0, "Click Up": 0, "Caption Artwork": 0, "Line OA Solar Enterprise": 1, "Brochure": 0, "แก้ไข D2 บทความที่ 7": 0, "แก้ไข D2 บทความที่ 8": 0, "My Pro Ads": 0, "รีวิวเรซูเม่พนักงาน JobFinfin": 0, "ตรวจเอกสารหัก ณ ที่จ่าย": 0, "YBN Thailand": 0, "AITIA": 0, "PK Fence": 0, "Content": 0, "Clear chat history IS Home": 1, "PPMS": 0, "เเก้ไข Catalog เเสงรุ่ง": 1, "ส่งตรวจงาน": 0, "Follow Up": 0, "Click Up Update": 0, "Asana Update": 0, "Landing Page Website Recap K.C": 0, "Company Profile + E-Book": 0, "Ben Logistics": 0, "ปกบทความ SEO เเสงรุ่ง 7-8": 1, "เกษตร 5 ดาว": 0, "Ben Logisitcs": 0, "Meta": 0}, "Chompoo": {"RADA Inhouse": 0, "Srifa": 0, "All Brand Ads": 0, "Starke": 0, "P-Solar": 0, "Privage": 0, "ZIRA Collagen": 1, "Arcadia Foods": 0, "ESC Park": 0, "ธงชัยการแพทย์": 0, "แสงรุ่ง": 0, "Ennkai Resort": 0, "1688 (MCN Project)": 0, "Billion Thai Supply": 0, "Celeb Medical": 0, "Gee Solar": 0, "AMT Capital": 0, "Asia Hospital": 0, "WRC Energy": 0, "House999": 0, "Sparksjump": 0, "SVC": 2, "Danilife": 0, "POSxPAY": 0, "TRiVii": 0, "ISHome": 0, "SEO Article (แสงรุ่ง)": 2, "AIYA": 0, "เอาชื่อเล่นใส่ใน Canva": 0, "สรุปการประชุม (ซัพพอร์ตพี่ชา)": 0, "รวบรวมแพคเกจจิ้ง สเปรย์ มูส วา": 0, "Ref CPAS ads": 0, "Weekly Update": 0, "Click Up": 0, "Caption Artwork": 0, "Line OA Solar Enterprise": 0, "Brochure": 0, "แก้ไข D2 บทความที่ 7": 1, "แก้ไข D2 บทความที่ 8": 1, "My Pro Ads": 0, "รีวิวเรซูเม่พนักงาน JobFinfin": 0, "ตรวจเอกสารหัก ณ ที่จ่าย": 0, "YBN Thailand": 0, "AITIA": 0, "PK Fence": 0, "Content": 0, "Clear chat history IS Home": 0, "PPMS": 0, "เเก้ไข Catalog เเสงรุ่ง": 0, "ส่งตรวจงาน": 0, "Follow Up": 0, "Click Up Update": 0, "Asana Update": 0, "Landing Page Website Recap K.C": 0, "Company Profile + E-Book": 0, "Ben Logistics": 0, "ปกบทความ SEO เเสงรุ่ง 7-8": 0, "เกษตร 5 ดาว": 0, "Ben Logisitcs": 0, "Meta": 0}, "Baitong": {"RADA Inhouse": 0, "Srifa": 0, "All Brand Ads": 0, "Starke": 0, "P-Solar": 0, "Privage": 0, "ZIRA Collagen": 0, "Arcadia Foods": 0, "ESC Park": 0, "ธงชัยการแพทย์": 0, "แสงรุ่ง": 0, "Ennkai Resort": 0, "1688 (MCN Project)": 0, "Billion Thai Supply": 0, "Celeb Medical": 0, "Gee Solar": 0, "AMT Capital": 0, "Asia Hospital": 0, "WRC Energy": 0, "House999": 0, "Sparksjump": 0, "SVC": 0, "Danilife": 0, "POSxPAY": 0, "TRiVii": 0, "ISHome": 0, "SEO Article (แสงรุ่ง)": 0, "AIYA": 0, "เอาชื่อเล่นใส่ใน Canva": 1, "สรุปการประชุม (ซัพพอร์ตพี่ชา)": 1, "รวบรวมแพคเกจจิ้ง สเปรย์ มูส วา": 1, "Ref CPAS ads": 0, "Weekly Update": 0, "Click Up": 0, "Caption Artwork": 0, "Line OA Solar Enterprise": 0, "Brochure": 0, "แก้ไข D2 บทความที่ 7": 0, "แก้ไข D2 บทความที่ 8": 0, "My Pro Ads": 0, "รีวิวเรซูเม่พนักงาน JobFinfin": 1, "ตรวจเอกสารหัก ณ ที่จ่าย": 1, "YBN Thailand": 0, "AITIA": 0, "PK Fence": 0, "Content": 0, "Clear chat history IS Home": 0, "PPMS": 0, "เเก้ไข Catalog เเสงรุ่ง": 0, "ส่งตรวจงาน": 0, "Follow Up": 0, "Click Up Update": 0, "Asana Update": 0, "Landing Page Website Recap K.C": 0, "Company Profile + E-Book": 0, "Ben Logistics": 0, "ปกบทความ SEO เเสงรุ่ง 7-8": 0, "เกษตร 5 ดาว": 0, "Ben Logisitcs": 0, "Meta": 0}, "Ploy": {"RADA Inhouse": 0, "Srifa": 3, "All Brand Ads": 0, "Starke": 0, "P-Solar": 0, "Privage": 0, "ZIRA Collagen": 0, "Arcadia Foods": 0, "ESC Park": 0, "ธงชัยการแพทย์": 0, "แสงรุ่ง": 0, "Ennkai Resort": 0, "1688 (MCN Project)": 0, "Billion Thai Supply": 0, "Celeb Medical": 0, "Gee Solar": 0, "AMT Capital": 0, "Asia Hospital": 0, "WRC Energy": 0, "House999": 0, "Sparksjump": 0, "SVC": 0, "Danilife": 0, "POSxPAY": 0, "TRiVii": 0, "ISHome": 0, "SEO Article (แสงรุ่ง)": 0, "AIYA": 0, "เอาชื่อเล่นใส่ใน Canva": 0, "สรุปการประชุม (ซัพพอร์ตพี่ชา)": 0, "รวบรวมแพคเกจจิ้ง สเปรย์ มูส วา": 0, "Ref CPAS ads": 0, "Weekly Update": 0, "Click Up": 0, "Caption Artwork": 0, "Line OA Solar Enterprise": 0, "Brochure": 0, "แก้ไข D2 บทความที่ 7": 0, "แก้ไข D2 บทความที่ 8": 0, "My Pro Ads": 0, "รีวิวเรซูเม่พนักงาน JobFinfin": 0, "ตรวจเอกสารหัก ณ ที่จ่าย": 0, "YBN Thailand": 0, "AITIA": 0, "PK Fence": 0, "Content": 0, "Clear chat history IS Home": 0, "PPMS": 1, "เเก้ไข Catalog เเสงรุ่ง": 0, "ส่งตรวจงาน": 0, "Follow Up": 0, "Click Up Update": 0, "Asana Update": 0, "Landing Page Website Recap K.C": 0, "Company Profile + E-Book": 0, "Ben Logistics": 0, "ปกบทความ SEO เเสงรุ่ง 7-8": 0, "เกษตร 5 ดาว": 0, "Ben Logisitcs": 0, "Meta": 0}, "Pang": {"RADA Inhouse": 0, "Srifa": 2, "All Brand Ads": 0, "Starke": 0, "P-Solar": 0, "Privage": 0, "ZIRA Collagen": 0, "Arcadia Foods": 0, "ESC Park": 0, "ธงชัยการแพทย์": 0, "แสงรุ่ง": 0, "Ennkai Resort": 0, "1688 (MCN Project)": 0, "Billion Thai Supply": 0, "Celeb Medical": 0, "Gee Solar": 0, "AMT Capital": 0, "Asia Hospital": 0, "WRC Energy": 0, "House999": 0, "Sparksjump": 0, "SVC": 0, "Danilife": 0, "POSxPAY": 0, "TRiVii": 0, "ISHome": 0, "SEO Article (แสงรุ่ง)": 0, "AIYA": 0, "เอาชื่อเล่นใส่ใน Canva": 0, "สรุปการประชุม (ซัพพอร์ตพี่ชา)": 0, "รวบรวมแพคเกจจิ้ง สเปรย์ มูส วา": 0, "Ref CPAS ads": 0, "Weekly Update": 0, "Click Up": 0, "Caption Artwork": 0, "Line OA Solar Enterprise": 0, "Brochure": 0, "แก้ไข D2 บทความที่ 7": 0, "แก้ไข D2 บทความที่ 8": 0, "My Pro Ads": 0, "รีวิวเรซูเม่พนักงาน JobFinfin": 0, "ตรวจเอกสารหัก ณ ที่จ่าย": 0, "YBN Thailand": 0, "AITIA": 0, "PK Fence": 0, "Content": 0, "Clear chat history IS Home": 0, "PPMS": 0, "เเก้ไข Catalog เเสงรุ่ง": 0, "ส่งตรวจงาน": 0, "Follow Up": 0, "Click Up Update": 0, "Asana Update": 0, "Landing Page Website Recap K.C": 0, "Company Profile + E-Book": 0, "Ben Logistics": 0, "ปกบทความ SEO เเสงรุ่ง 7-8": 0, "เกษตร 5 ดาว": 0, "Ben Logisitcs": 0, "Meta": 0}}, "projects_full": [{"name": "RADA Inhouse", "total": 57, "done": 53, "pending": 2, "cancel": 2, "rate": 93.0, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 49, "done": 46, "share": 86.0}, {"name": "Namcha", "emoji": "💼", "tasks": 5, "done": 4, "share": 8.8}, {"name": "Katiel", "emoji": "📝", "tasks": 3, "done": 3, "share": 5.3}], "n_contributors": 3}, {"name": "Srifa", "total": 35, "done": 32, "pending": 2, "cancel": 1, "rate": 91.4, "contributors": [{"name": "Katiel", "emoji": "📝", "tasks": 16, "done": 14, "share": 45.7}, {"name": "Arm", "emoji": "🚀", "tasks": 10, "done": 9, "share": 28.6}, {"name": "Namo", "emoji": "🌱", "tasks": 3, "done": 3, "share": 8.6}, {"name": "Ploy", "emoji": "💬", "tasks": 3, "done": 3, "share": 8.6}, {"name": "Pang", "emoji": "💬", "tasks": 2, "done": 2, "share": 5.7}, {"name": "Bas", "emoji": "🎨", "tasks": 1, "done": 1, "share": 2.9}], "n_contributors": 6}, {"name": "All Brand Ads", "total": 23, "done": 22, "pending": 1, "cancel": 0, "rate": 95.7, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 23, "done": 22, "share": 100.0}], "n_contributors": 1}, {"name": "Starke", "total": 20, "done": 13, "pending": 6, "cancel": 1, "rate": 65.0, "contributors": [{"name": "Katiel", "emoji": "📝", "tasks": 8, "done": 4, "share": 40.0}, {"name": "Bas", "emoji": "🎨", "tasks": 7, "done": 5, "share": 35.0}, {"name": "Arm", "emoji": "🚀", "tasks": 5, "done": 4, "share": 25.0}], "n_contributors": 3}, {"name": "P-Solar", "total": 20, "done": 19, "pending": 1, "cancel": 0, "rate": 95.0, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 11, "done": 10, "share": 55.0}, {"name": "Katiel", "emoji": "📝", "tasks": 5, "done": 5, "share": 25.0}, {"name": "Namo", "emoji": "🌱", "tasks": 2, "done": 2, "share": 10.0}, {"name": "Namcha", "emoji": "💼", "tasks": 1, "done": 1, "share": 5.0}, {"name": "Bas", "emoji": "🎨", "tasks": 1, "done": 1, "share": 5.0}], "n_contributors": 5}, {"name": "Privage", "total": 18, "done": 14, "pending": 4, "cancel": 0, "rate": 77.8, "contributors": [{"name": "Namcha", "emoji": "💼", "tasks": 9, "done": 6, "share": 50.0}, {"name": "Arm", "emoji": "🚀", "tasks": 7, "done": 7, "share": 38.9}, {"name": "Katiel", "emoji": "📝", "tasks": 1, "done": 0, "share": 5.6}, {"name": "Bas", "emoji": "🎨", "tasks": 1, "done": 1, "share": 5.6}], "n_contributors": 4}, {"name": "ZIRA Collagen", "total": 11, "done": 11, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Katiel", "emoji": "📝", "tasks": 4, "done": 4, "share": 36.4}, {"name": "Namo", "emoji": "🌱", "tasks": 2, "done": 2, "share": 18.2}, {"name": "Arm", "emoji": "🚀", "tasks": 2, "done": 2, "share": 18.2}, {"name": "Namcha", "emoji": "💼", "tasks": 2, "done": 2, "share": 18.2}, {"name": "Chompoo", "emoji": "🌐", "tasks": 1, "done": 1, "share": 9.1}], "n_contributors": 5}, {"name": "Arcadia Foods", "total": 9, "done": 9, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 7, "done": 7, "share": 77.8}, {"name": "Namcha", "emoji": "💼", "tasks": 2, "done": 2, "share": 22.2}], "n_contributors": 2}, {"name": "ESC Park", "total": 7, "done": 6, "pending": 1, "cancel": 0, "rate": 85.7, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 3, "done": 3, "share": 42.9}, {"name": "Katiel", "emoji": "📝", "tasks": 2, "done": 2, "share": 28.6}, {"name": "Bas", "emoji": "🎨", "tasks": 2, "done": 1, "share": 28.6}], "n_contributors": 3}, {"name": "ธงชัยการแพทย์", "total": 7, "done": 7, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Bas", "emoji": "🎨", "tasks": 4, "done": 4, "share": 57.1}, {"name": "Katiel", "emoji": "📝", "tasks": 3, "done": 3, "share": 42.9}], "n_contributors": 2}, {"name": "แสงรุ่ง", "total": 6, "done": 6, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 5, "done": 5, "share": 83.3}, {"name": "Katiel", "emoji": "📝", "tasks": 1, "done": 1, "share": 16.7}], "n_contributors": 2}, {"name": "Ennkai Resort", "total": 6, "done": 5, "pending": 1, "cancel": 0, "rate": 83.3, "contributors": [{"name": "Katiel", "emoji": "📝", "tasks": 3, "done": 3, "share": 50.0}, {"name": "Arm", "emoji": "🚀", "tasks": 2, "done": 1, "share": 33.3}, {"name": "Namcha", "emoji": "💼", "tasks": 1, "done": 1, "share": 16.7}], "n_contributors": 3}, {"name": "1688 (MCN Project)", "total": 5, "done": 2, "pending": 3, "cancel": 0, "rate": 40.0, "contributors": [{"name": "Namcha", "emoji": "💼", "tasks": 5, "done": 2, "share": 100.0}], "n_contributors": 1}, {"name": "Billion Thai Supply", "total": 5, "done": 2, "pending": 3, "cancel": 0, "rate": 40.0, "contributors": [{"name": "Katiel", "emoji": "📝", "tasks": 4, "done": 2, "share": 80.0}, {"name": "Bas", "emoji": "🎨", "tasks": 1, "done": 0, "share": 20.0}], "n_contributors": 2}, {"name": "Celeb Medical", "total": 4, "done": 3, "pending": 1, "cancel": 0, "rate": 75.0, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 2, "done": 2, "share": 50.0}, {"name": "Namcha", "emoji": "💼", "tasks": 1, "done": 0, "share": 25.0}, {"name": "Bas", "emoji": "🎨", "tasks": 1, "done": 1, "share": 25.0}], "n_contributors": 3}, {"name": "Gee Solar", "total": 3, "done": 3, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 3, "done": 3, "share": 100.0}], "n_contributors": 1}, {"name": "AMT Capital", "total": 3, "done": 3, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Bas", "emoji": "🎨", "tasks": 2, "done": 2, "share": 66.7}, {"name": "Katiel", "emoji": "📝", "tasks": 1, "done": 1, "share": 33.3}], "n_contributors": 2}, {"name": "Asia Hospital", "total": 3, "done": 3, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 2, "done": 2, "share": 66.7}, {"name": "Namcha", "emoji": "💼", "tasks": 1, "done": 1, "share": 33.3}], "n_contributors": 2}, {"name": "WRC Energy", "total": 2, "done": 2, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 2, "done": 2, "share": 100.0}], "n_contributors": 1}, {"name": "House999", "total": 2, "done": 1, "pending": 1, "cancel": 0, "rate": 50.0, "contributors": [{"name": "Bas", "emoji": "🎨", "tasks": 2, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "Sparksjump", "total": 2, "done": 2, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 1, "done": 1, "share": 50.0}, {"name": "Katiel", "emoji": "📝", "tasks": 1, "done": 1, "share": 50.0}], "n_contributors": 2}, {"name": "SVC", "total": 2, "done": 2, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Chompoo", "emoji": "🌐", "tasks": 2, "done": 2, "share": 100.0}], "n_contributors": 1}, {"name": "Danilife", "total": 2, "done": 2, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Katiel", "emoji": "📝", "tasks": 1, "done": 1, "share": 50.0}, {"name": "Namcha", "emoji": "💼", "tasks": 1, "done": 1, "share": 50.0}], "n_contributors": 2}, {"name": "POSxPAY", "total": 2, "done": 2, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Katiel", "emoji": "📝", "tasks": 2, "done": 2, "share": 100.0}], "n_contributors": 1}, {"name": "TRiVii", "total": 2, "done": 2, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Bas", "emoji": "🎨", "tasks": 1, "done": 1, "share": 50.0}, {"name": "Namo", "emoji": "🌱", "tasks": 1, "done": 1, "share": 50.0}], "n_contributors": 2}, {"name": "ISHome", "total": 2, "done": 2, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 2, "done": 2, "share": 100.0}], "n_contributors": 1}, {"name": "SEO Article (แสงรุ่ง)", "total": 2, "done": 2, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Chompoo", "emoji": "🌐", "tasks": 2, "done": 2, "share": 100.0}], "n_contributors": 1}, {"name": "AIYA", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "เอาชื่อเล่นใส่ใน Canva", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0, "contributors": [{"name": "Baitong", "emoji": "📋", "tasks": 1, "done": 0, "share": 100.0}], "n_contributors": 1}, {"name": "สรุปการประชุม (ซัพพอร์ตพี่ชา)", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0, "contributors": [{"name": "Baitong", "emoji": "📋", "tasks": 1, "done": 0, "share": 100.0}], "n_contributors": 1}, {"name": "รวบรวมแพคเกจจิ้ง สเปรย์ มูส วา", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0, "contributors": [{"name": "Baitong", "emoji": "📋", "tasks": 1, "done": 0, "share": 100.0}], "n_contributors": 1}, {"name": "Ref CPAS ads", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Namo", "emoji": "🌱", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "Weekly Update", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Katiel", "emoji": "📝", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "Click Up", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Katiel", "emoji": "📝", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "Caption Artwork", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Katiel", "emoji": "📝", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "Line OA Solar Enterprise", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Namo", "emoji": "🌱", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "Brochure", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Katiel", "emoji": "📝", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "แก้ไข D2 บทความที่ 7", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0, "contributors": [{"name": "Chompoo", "emoji": "🌐", "tasks": 1, "done": 0, "share": 100.0}], "n_contributors": 1}, {"name": "แก้ไข D2 บทความที่ 8", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0, "contributors": [{"name": "Chompoo", "emoji": "🌐", "tasks": 1, "done": 0, "share": 100.0}], "n_contributors": 1}, {"name": "My Pro Ads", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "รีวิวเรซูเม่พนักงาน JobFinfin", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0, "contributors": [{"name": "Baitong", "emoji": "📋", "tasks": 1, "done": 0, "share": 100.0}], "n_contributors": 1}, {"name": "ตรวจเอกสารหัก ณ ที่จ่าย", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Baitong", "emoji": "📋", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "YBN Thailand", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 1, "done": 0, "share": 100.0}], "n_contributors": 1}, {"name": "AITIA", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Namcha", "emoji": "💼", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "PK Fence", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Namcha", "emoji": "💼", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "Content", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Katiel", "emoji": "📝", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "Clear chat history IS Home", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Namo", "emoji": "🌱", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "PPMS", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0, "contributors": [{"name": "Ploy", "emoji": "💬", "tasks": 1, "done": 0, "share": 100.0}], "n_contributors": 1}, {"name": "เเก้ไข Catalog เเสงรุ่ง", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Namo", "emoji": "🌱", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "ส่งตรวจงาน", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Katiel", "emoji": "📝", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "Follow Up", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Katiel", "emoji": "📝", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "Click Up Update", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Katiel", "emoji": "📝", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "Asana Update", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Katiel", "emoji": "📝", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "Landing Page Website Recap K.C", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0, "contributors": [{"name": "Katiel", "emoji": "📝", "tasks": 1, "done": 0, "share": 100.0}], "n_contributors": 1}, {"name": "Company Profile + E-Book", "total": 1, "done": 0, "pending": 1, "cancel": 0, "rate": 0.0, "contributors": [{"name": "Katiel", "emoji": "📝", "tasks": 1, "done": 0, "share": 100.0}], "n_contributors": 1}, {"name": "Ben Logistics", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "ปกบทความ SEO เเสงรุ่ง 7-8", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Namo", "emoji": "🌱", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "เกษตร 5 ดาว", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "Ben Logisitcs", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}, {"name": "Meta", "total": 1, "done": 1, "pending": 0, "cancel": 0, "rate": 100.0, "contributors": [{"name": "Arm", "emoji": "🚀", "tasks": 1, "done": 1, "share": 100.0}], "n_contributors": 1}]};
+  var T = {navy:'#1A365D',teal:'#00A88F',tealDeep:'#007F6B',orange:'#FF7A45',grey:'#8896A6',crimson:'#D7263D'};
+  // Color palette for projects
+  var PIE_COLORS = ['#00A88F','#1A365D','#FF7A45','#7CDCC2','#D7263D','#FFA84D','#5B8BD3','#8B5CF6','#10B981','#F59E0B','#EC4899','#6366F1'];
+
+  function $(id){return document.getElementById(id);}
+  function esc(s){return String(s).replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+  // KPIs
+  $('kpiTotal').textContent = DATA.totals.total;
+  $('kpiSubTotal').textContent = DATA.owners.length + ' คน · ' + DATA.projects_full.length + ' โปรเจกต์';
+  $('kpiDone').textContent = DATA.totals.done;
+  $('kpiPending').textContent = DATA.totals.pending;
+  $('kpiCancel').textContent = DATA.totals.cancel;
+  var rate = (DATA.totals.done / DATA.totals.total * 100).toFixed(1);
+  $('kpiRate').textContent = rate + '% completion rate';
+  $('genStamp').textContent = DATA.generated_at;
+
+  // === STATUS DONUT ===
+  function donut(){
+    var t = DATA.totals;
+    var segs = [
+      {label:'เสร็จ', value:t.done, color:T.teal},
+      {label:'ยังไม่เสร็จ', value:t.pending, color:T.orange},
+      {label:'ยกเลิก', value:t.cancel, color:T.grey}
+    ];
+    var total = t.total, cx=90, cy=90, r=70, sw=22;
+    var circ = 2*Math.PI*r;
+    var off = 0, paths='';
+    segs.forEach(function(s){
+      var len = circ * (s.value/total);
+      var dash = len + ' ' + (circ - len);
+      paths += '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+s.color+'" stroke-width="'+sw+'" stroke-dasharray="'+dash+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 '+cx+' '+cy+')"/>';
+      off += len;
+    });
+    var svg = '<svg class="donut-svg" width="180" height="180" viewBox="0 0 180 180">'
+      + paths
+      + '<text x="90" y="86" text-anchor="middle" font-family="Inter" font-size="32" font-weight="800" fill="'+T.navy+'">'+rate+'%</text>'
+      + '<text x="90" y="106" text-anchor="middle" font-family="Sarabun" font-size="11" fill="'+T.grey+'">เสร็จงาน</text>'
+      + '</svg>';
+    var legend = '<div class="donut-legend">';
+    segs.forEach(function(s){
+      var p = (s.value/total*100).toFixed(1);
+      legend += '<div><i style="background:'+s.color+'"></i><span>'+s.label+'</span><b>'+s.value+'</b><small>('+p+'%)</small></div>';
+    });
+    legend += '</div>';
+    $('donutWrap').innerHTML = svg + legend;
+  }
+
+  // === OWNER STACKED BARS ===
+  function hbarOwners(){
+    var max = 0;
+    DATA.owners.forEach(function(o){ if(o.total>max) max=o.total; });
+    var html = '';
+    DATA.owners.forEach(function(o){
+      var dPct = o.done/max*100;
+      var pPct = o.pending/max*100;
+      var cPct = o.cancel/max*100;
+      html += '<div class="hbar-row">'
+        + '<div class="nm">'+esc(o.name)+'</div>'
+        + '<div class="hbar">'
+        + '<span class="seg-d" style="width:'+dPct+'%" title="เสร็จ '+o.done+'"></span>'
+        + '<span class="seg-p" style="width:'+pPct+'%" title="ยังไม่เสร็จ '+o.pending+'"></span>'
+        + '<span class="seg-c" style="width:'+cPct+'%" title="ยกเลิก '+o.cancel+'"></span>'
+        + '</div>'
+        + '<div class="vt">'+o.total+'</div>'
+        + '</div>';
+    });
+    html += '<div style="margin-top:12px;display:flex;gap:18px;justify-content:center;font-size:12px;color:var(--grey)">'
+      + '<span><i style="display:inline-block;width:12px;height:12px;background:'+T.teal+';border-radius:2px;vertical-align:middle"></i> เสร็จ</span>'
+      + '<span><i style="display:inline-block;width:12px;height:12px;background:'+T.orange+';border-radius:2px;vertical-align:middle"></i> ยังไม่เสร็จ</span>'
+      + '<span><i style="display:inline-block;width:12px;height:12px;background:'+T.grey+';border-radius:2px;vertical-align:middle"></i> ยกเลิก</span>'
+      + '</div>';
+    $('hbarOwners').innerHTML = html;
+  }
+
+  // === PIE CHART OF PROJECT WORKLOAD ===
+  function pieProjects(){
+    var top = DATA.projects.slice(0,10);
+    var topSum = 0;
+    top.forEach(function(p){ topSum += p.total; });
+    var other = DATA.totals.total - topSum;
+    var segs = top.map(function(p,i){return {label:p.name, value:p.total, color:PIE_COLORS[i%PIE_COLORS.length]};});
+    if(other>0) segs.push({label:'อื่น ๆ ('+(DATA.projects.length-10)+' โปรเจกต์)', value:other, color:'#B7C2CE'});
+
+    var cx=100, cy=100, r=90;
+    var total = DATA.totals.total;
+    var startAngle = -Math.PI/2;
+    var paths = '';
+    segs.forEach(function(s){
+      var slice = (s.value/total) * Math.PI*2;
+      var endAngle = startAngle + slice;
+      var x1 = cx + r*Math.cos(startAngle);
+      var y1 = cy + r*Math.sin(startAngle);
+      var x2 = cx + r*Math.cos(endAngle);
+      var y2 = cy + r*Math.sin(endAngle);
+      var large = slice > Math.PI ? 1 : 0;
+      var d = 'M '+cx+' '+cy+' L '+x1+' '+y1+' A '+r+' '+r+' 0 '+large+' 1 '+x2+' '+y2+' Z';
+      paths += '<path d="'+d+'" fill="'+s.color+'" stroke="white" stroke-width="2"/>';
+      startAngle = endAngle;
+    });
+    var svg = '<svg width="200" height="200" viewBox="0 0 200 200">'+paths+'</svg>';
+
+    var legend = '<div class="pie-legend">';
+    segs.forEach(function(s){
+      var pct = (s.value/total*100).toFixed(1);
+      legend += '<div><i style="background:'+s.color+'"></i><span class="nm" title="'+esc(s.label)+'">'+esc(s.label)+'</span><span class="vl">'+s.value+' <small style="color:var(--grey);font-weight:400">('+pct+'%)</small></span></div>';
+    });
+    legend += '</div>';
+    $('pieProjects').innerHTML = svg + legend;
+  }
+
+  // === COMPLETION RATE BARS PER PROJECT ===
+  function rateBars(){
+    var top = DATA.projects.slice(0,15);
+    var html = '';
+    top.forEach(function(p){
+      var color = p.rate>=90?T.teal:(p.rate>=70?T.orange:T.crimson);
+      html += '<div class="col-chart">'
+        + '<div class="nm" title="'+esc(p.name)+'">'+esc(p.name)+'</div>'
+        + '<div class="bar"><span style="width:'+p.rate+'%;background:'+color+'"></span></div>'
+        + '<div class="pct" style="color:'+color+'">'+Math.round(p.rate)+'%</div>'
+        + '</div>';
+    });
+    html += '<div style="margin-top:12px;display:flex;gap:14px;justify-content:center;font-size:11px;color:var(--grey);padding-top:8px;border-top:1px solid var(--light-grey)">'
+      + '<span><i style="display:inline-block;width:10px;height:10px;background:'+T.teal+';border-radius:2px;vertical-align:middle"></i> ≥ 90%</span>'
+      + '<span><i style="display:inline-block;width:10px;height:10px;background:'+T.orange+';border-radius:2px;vertical-align:middle"></i> 70-89%</span>'
+      + '<span><i style="display:inline-block;width:10px;height:10px;background:'+T.crimson+';border-radius:2px;vertical-align:middle"></i> &lt; 70%</span>'
+      + '</div>';
+    $('rateBars').innerHTML = html;
+  }
+
+  // === OWNER CARDS ===
+  function ownerCards(){
+    var grid = $('ownerGrid');
+    var out = '';
+    DATA.owners.forEach(function(o){
+      var radius=26, circumference=2*Math.PI*radius;
+      var offset = circumference - (o.rate/100)*circumference;
+      var ringColor = o.rate>=90?T.teal:(o.rate>=70?'#FFA84D':T.crimson);
+      var donePct = o.total ? (o.done/o.total*100) : 0;
+      var pendPct = o.total ? (o.pending/o.total*100) : 0;
+      var cancPct = o.total ? (o.cancel/o.total*100) : 0;
+      var topHTML = o.top_projects.map(function(p){
+        return '<div class="top-proj"><span>'+esc(p.p)+'</span><b>'+p.n+'</b></div>';
+      }).join('');
+      var pendHTML = '';
+      if(o.pending_tasks.length === 0){
+        pendHTML = '<div class="ok-msg">✓ ปิดงานครบทุกชิ้น</div>';
+      } else {
+        pendHTML = o.pending_tasks.map(function(t){
+          var isCancel = t.status==='cancelled';
+          return '<div class="pending-item '+(isCancel?'cancel':'')+'"><span class="p-name">'+esc(t.name)+'</span><span class="p-status">'+esc(t.status)+'</span></div>';
+        }).join('');
+      }
+      out += '<div class="owner">'
+        + '<div class="owner-head">'
+        +   '<div class="owner-id">'
+        +     '<div class="owner-emoji">'+o.emoji+'</div>'
+        +     '<div><div class="owner-name">'+esc(o.name)+'</div><div class="owner-role">'+esc(o.role)+'</div></div>'
+        +   '</div>'
+        +   '<div class="completion-ring">'
+        +     '<svg width="62" height="62"><circle cx="31" cy="31" r="'+radius+'" stroke="#EEF2F5" stroke-width="6" fill="none"/>'
+        +     '<circle cx="31" cy="31" r="'+radius+'" stroke="'+ringColor+'" stroke-width="6" fill="none" stroke-dasharray="'+circumference+'" stroke-dashoffset="'+offset+'" stroke-linecap="round" transform="rotate(-90 31 31)"/></svg>'
+        +     '<div class="ring-pct">'+Math.round(o.rate)+'%</div>'
+        +   '</div>'
+        + '</div>'
+        + '<div class="owner-stats">'
+        +   '<div class="stat done"><div class="stat-num">'+o.done+'</div><div class="stat-lbl">เสร็จ</div></div>'
+        +   '<div class="stat pending"><div class="stat-num">'+o.pending+'</div><div class="stat-lbl">ค้าง</div></div>'
+        +   '<div class="stat cancel"><div class="stat-num">'+o.cancel+'</div><div class="stat-lbl">ยกเลิก</div></div>'
+        + '</div>'
+        + '<div class="progress-bar">'
+        +   '<span class="seg-d" style="width:'+donePct+'%"></span>'
+        +   '<span class="seg-p" style="width:'+pendPct+'%"></span>'
+        +   '<span class="seg-c" style="width:'+cancPct+'%"></span>'
+        + '</div>'
+        + '<div class="total-bar">รวมทั้งหมด <b>'+o.total+' งาน</b></div>'
+        + '<div class="owner-section"><h4>โปรเจกต์ที่ลงแรงเยอะสุด (Top 3)</h4><div class="top-proj-list">'+topHTML+'</div></div>'
+        + '<div class="owner-section" style="flex:1"><h4>งานที่ยังไม่เสร็จ / ยกเลิก'
+        + (o.pending_tasks.length>8 ? ' (8/'+o.pending_tasks.length+')' : '')
+        + '</h4><div class="pending-list">'+pendHTML+'</div></div>'
+        + '</div>';
+    });
+    grid.innerHTML = out;
+  }
+
+  // === PROJECT CARDS ===
+  function projCards(minTasks){
+    var grid = $('projGrid');
+    var filtered = DATA.projects_full.filter(function(p){return p.total >= minTasks;});
+    var out = '';
+    filtered.forEach(function(p){
+      var rateClass = p.rate>=90 ? '' : (p.rate>=70 ? 'warn' : 'bad');
+      var contribHTML = '';
+      var maxShare = p.contributors[0] ? p.contributors[0].tasks : 1;
+      p.contributors.forEach(function(c){
+        var pctOfMax = c.tasks/maxShare*100;
+        contribHTML += '<div class="contrib-row">'
+          + '<div class="av">'+c.emoji+'</div>'
+          + '<div class="nm">'+esc(c.name)+'</div>'
+          + '<div class="br" title="'+c.share+'% ของงานในโปรเจกต์"><span style="width:'+pctOfMax+'%"></span></div>'
+          + '<div class="vt">'+c.tasks+'</div>'
+          + '</div>';
+      });
+      var dPct = p.total ? p.done/p.total*100 : 0;
+      var pPct = p.total ? p.pending/p.total*100 : 0;
+      var cPct = p.total ? p.cancel/p.total*100 : 0;
+      out += '<div class="proj-card">'
+        + '<div class="proj-head">'
+        +   '<div class="pn">'+esc(p.name)+'</div>'
+        +   '<div class="pcount">'+p.total+'</div>'
+        + '</div>'
+        + '<div class="proj-meta '+rateClass+'">'
+        +   '<span>Completion Rate</span>'
+        +   '<span><span class="pct-b">'+Math.round(p.rate)+'%</span></span>'
+        + '</div>'
+        + '<div class="proj-bar">'
+        +   '<span class="seg-d" style="width:'+dPct+'%"></span>'
+        +   '<span class="seg-p" style="width:'+pPct+'%"></span>'
+        +   '<span class="seg-c" style="width:'+cPct+'%"></span>'
+        + '</div>'
+        + '<div class="proj-stats">'
+        +   '<div class="d"><b>'+p.done+'</b>เสร็จ</div>'
+        +   '<div class="p"><b>'+p.pending+'</b>ค้าง</div>'
+        +   '<div class="c"><b>'+p.cancel+'</b>ยกเลิก</div>'
+        + '</div>'
+        + '<div class="proj-contrib">'
+        +   '<h4>ผู้รับผิดชอบ <span class="cnt">'+p.n_contributors+' คน</span></h4>'
+        +   contribHTML
+        + '</div>'
+        + '</div>';
+    });
+    grid.innerHTML = out || '<div style="grid-column:1/-1;text-align:center;color:var(--grey);padding:40px">ไม่มีโปรเจกต์ที่ตรงเงื่อนไข</div>';
+  }
+
+  // === PROJECT TABLE ===
+  function projTable(){
+    var tbody = document.querySelector('#projTable tbody');
+    var out = '';
+    DATA.projects_full.forEach(function(p){
+      var cls = p.rate>=90?'green':(p.rate>=70?'orange':'grey');
+      out += '<tr><td>'+esc(p.name)+'</td><td><b>'+p.total+'</b></td><td>'+p.done+'</td><td>'+p.pending+'</td><td>'+p.cancel+'</td><td>'+p.n_contributors+'</td><td><span class="pill '+cls+'">'+Math.round(p.rate)+'%</span></td></tr>';
+    });
+    tbody.innerHTML = out;
+  }
+
+  // === MATRIX ===
+  function matrix(){
+    var head = '<thead><tr><th>โปรเจกต์ × คน</th>';
+    DATA.matrix_owners.forEach(function(o){ head += '<th>'+esc(o)+'</th>'; });
+    head += '<th style="background:var(--teal)">รวม</th></tr></thead>';
+    var body = '<tbody>';
+    DATA.matrix_projects.forEach(function(p){
+      body += '<tr><td>'+esc(p)+'</td>';
+      var sum = 0;
+      DATA.matrix_owners.forEach(function(o){
+        var v = (DATA.matrix[o] && DATA.matrix[o][p]) || 0;
+        sum += v;
+        var cls = 'heat-0';
+        if(v>=10) cls='heat-10'; else if(v>=5) cls='heat-5'; else if(v>=3) cls='heat-3'; else if(v>=1) cls='heat-1';
+        body += '<td class="'+cls+'">'+(v||'·')+'</td>';
+      });
+      body += '<td style="background:#E6F4F1;color:var(--navy);font-weight:800">'+sum+'</td></tr>';
+    });
+    body += '</tbody>';
+    $('matrixTable').innerHTML = head + body;
+  }
+
+  // Filter button handler
+  document.querySelectorAll('.filter-bar button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.filter-bar button').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+      projCards(parseInt(btn.dataset.min));
+    });
+  });
+
+  // Init
+  donut();
+  hbarOwners();
+  pieProjects();
+  rateBars();
+  ownerCards();
+  projCards(1);
+  projTable();
+  matrix();
+})();
+</script>
+</body>
+</html>
